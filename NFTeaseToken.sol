@@ -1,3 +1,27 @@
+/**                    %%%%%%%%%%%%%%%%.                                           
+*            **#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*                                  
+*      /%%%t%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Y%%%%%%%%%%.                            
+*  /%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(                        
+*  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*.                  
+*  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(((/        
+*  %%%%%%%%%%%%%%%%%%%%%%%%%%%%L%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.   
+*   %%%%%%%%%%%%%%%%%%%%*.          ..*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(
+*   (%%%%%%%%%%%%%%%%%%%,                  /#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(
+*   *%%%%%%%%%%%%%%%%%%%%                    .%3%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*    (%%%%%%%%%%%%%%%%%%%%(                    /%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+*     %%%%%%%%%%%%%%%%%%%%%%%#                  %%%%%%%%%%%%%%%%%%%%%&@@@@@@@@@@@@(
+*      (%%%%%%%%%%%%%%%%%%%%%%%%%#*,            %%%%%%%%%%%%%%%%%&@@@(((((@@@@@@@@ 
+*       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.  %%%%%%%%%%%%%%%%&@@@        (@@@@*  
+*        *%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@(         %@@@%   
+*          ,%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&@@@r@%    *@@@@@&    
+*            *%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@@@%     
+*               ,#%P%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@a@@@@@@@@@@@@@@      
+*                  .,%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@@@@@@@@@@(       
+*                        ,%(#%%%%%%%%%%%%%%%#l((((((((((%%%%@a@@@@@@@@@@@&        
+*                                                            %@@@@@@@@@@@/         
+*   NFTEASE                                                     #@@@@@@@/          
+*/
+
 pragma solidity ^0.8.1;
 // SPDX-License-Identifier: Unlicensed
 interface IERC20 {
@@ -678,7 +702,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
 }
 
 
-contract NFTeaseToken is Context, IERC20, Ownable {
+contract NFTease is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
 
@@ -696,9 +720,9 @@ contract NFTeaseToken is Context, IERC20, Ownable {
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
-    string private _name = "TEST";
-    string private _symbol = "TESSSSS";
-    uint8 private _decimals = 18;
+    string private constant _name = "NFTease";
+    string private constant _symbol = "TEASE";
+    uint8 private constant _decimals = 18;
     
     uint256 public _taxFee = 1;
     uint256 private _previousTaxFee = _taxFee;
@@ -706,7 +730,7 @@ contract NFTeaseToken is Context, IERC20, Ownable {
     uint256 public _liquidityFee = 350; // 3.5%
     uint256 private _previousLiquidityFee = _liquidityFee;
 
-    uint256 public _adminFee = 25; // 25%
+    uint256 public _adminFee = 25; // 0.25%
     uint256 private _previousAdminFee = _adminFee;
 
     address public adminWallet = 0xE37a2e54F6855D7c58C06F271aD53FC44f439b71;
@@ -750,14 +774,11 @@ contract NFTeaseToken is Context, IERC20, Ownable {
     
     constructor ()  {
         _rOwned[_msgSender()] = _rTotal;
-        
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); //Pancake Swap's address
+       
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x10ED43C718714eb63d5aA57B78B54704E256024E); // mainnet
         // IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1); // testnet
-         // Create a uniswap pair for this new token
-        
-        // testnet 
-        // uniswapV2Pair = IUniswapV2Factory(0x6725F303b657a9451d8BA641348b6761A6CC7a17).createPair(address(this), _uniswapV2Router.WETH());
 
+        // Create a uniswap pair for this new token
         // main net
         uniswapV2Pair = IUniswapV2Factory(_uniswapV2Router.factory())
             .createPair(address(this), _uniswapV2Router.WETH());
@@ -772,19 +793,19 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         emit Transfer(address(0), _msgSender(), _tTotal);
     }
 
-    function name() public view returns (string memory) {
+    function name() external pure returns (string memory) {
         return _name;
     }
 
-    function symbol() public view returns (string memory) {
+    function symbol() external pure returns (string memory) {
         return _symbol;
     }
 
-    function decimals() public view returns (uint8) {
+    function decimals() external pure returns (uint8) {
         return _decimals;
     }
 
-    function totalSupply() public view override returns (uint256) {
+    function totalSupply() external view override returns (uint256) {
         return _tTotal;
     }
 
@@ -793,45 +814,45 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         return tokenFromReflection(_rOwned[account]);
     }
 
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
+    function transfer(address recipient, uint256 amount) external override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
 
-    function allowance(address owner, address spender) public view override returns (uint256) {
+    function allowance(address owner, address spender) external view override returns (uint256) {
         return _allowances[owner][spender];
     }
 
-    function approve(address spender, uint256 amount) public override returns (bool) {
+    function approve(address spender, uint256 amount) external override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "BEP20: transfer amount exceeds allowance"));
         return true;
     }
 
-    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue) external virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue) external virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
         return true;
     }
 
-    function isExcludedFromReward(address account) public view returns (bool) {
+    function isExcludedFromReward(address account) external view returns (bool) {
         return _isExcluded[account];
     }
 
-    function totalFees() public view returns (uint256) {
+    function totalFees() external view returns (uint256) {
         return _tFeeTotal;
     }
 
-    function deliver(uint256 tAmount) public {
+    function deliver(uint256 tAmount) external {
         address sender = _msgSender();
         require(!_isExcluded[sender], "Excluded addresses cannot call this function");
         (uint256 rAmount,,,,,,) = _getValues(tAmount);
@@ -840,7 +861,7 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         _tFeeTotal = _tFeeTotal.add(tAmount);
     }
 
-    function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
+    function reflectionFromToken(uint256 tAmount, bool deductTransferFee) external view returns(uint256) {
         require(tAmount <= _tTotal, "Amount must be less than supply");
         if (!deductTransferFee) {
             (uint256 rAmount,,,,,,) = _getValues(tAmount);
@@ -857,7 +878,7 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         return rAmount.div(currentRate);
     }
 
-    function excludeFromReward(address account) public onlyOwner() {
+    function excludeFromReward(address account) external onlyOwner() {
         // require(account != 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, 'We can not exclude Uniswap router.');
         require(!_isExcluded[account], "Account is already excluded");
         if(_rOwned[account] > 0) {
@@ -866,9 +887,9 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         _isExcluded[account] = true;
         _excluded.push(account);
     }
-
+    
     function includeInReward(address account) external onlyOwner() {
-        require(_isExcluded[account], "Account is already excluded");
+        require(_isExcluded[account], "Account is already included");
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_excluded[i] == account) {
                 _excluded[i] = _excluded[_excluded.length - 1];
@@ -892,37 +913,43 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         emit Transfer(sender, recipient, tTransferAmount);
     }
     
-    function excludeFromFee(address account) public onlyOwner {
+    function excludeFromFee(address account) external onlyOwner {
         _isExcludedFromFee[account] = true;
     }
     
-    function includeInFee(address account) public onlyOwner {
+    function includeInFee(address account) external onlyOwner {
         _isExcludedFromFee[account] = false;
     }
     
     function setTaxFeePercent(uint256 taxFee) external onlyOwner() {
+        require(taxFee <= 10, "Tax Fee cannot be greater than 10%");
+        _previousTaxFee = _taxFee;
         _taxFee = taxFee;
-        emit FeeChanged("TaxFee", _previousLiquidityFee, _liquidityFee);
+        emit FeeChanged("TaxFee", _previousTaxFee, _taxFee);
     }
     
     function setLiquidityFeePercent(uint256 liquidityFee) external onlyOwner() {
+        require(liquidityFee <= 1000, "Liquidity fee cannot be greater than 10%");
+        _previousLiquidityFee = _liquidityFee;
         _liquidityFee = liquidityFee;
         emit FeeChanged("LiquidityFee", _previousLiquidityFee, _liquidityFee);
     }
     
     function setAdminFeePercent(uint256 adminFee) external onlyOwner() {
+        require(adminFee <= 500, "Admin Fee cannot be greater than 5%");
         _previousAdminFee = _adminFee;
         _adminFee = adminFee;
         emit FeeChanged("AdminFee", _previousAdminFee, _adminFee);
     }
     
     function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner() {
+        require(maxTxPercent > 0, "MaxTX must be above 0");
         _maxTxAmount = _tTotal.mul(maxTxPercent).div(
             10**2
         );
     }
 
-    function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
+    function setSwapAndLiquifyEnabled(bool _enabled) external onlyOwner {
         swapAndLiquifyEnabled = _enabled;
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
@@ -1032,7 +1059,7 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         _liquidityFee = _previousLiquidityFee;
     }
     
-    function isExcludedFromFee(address account) public view returns(bool) {
+    function isExcludedFromFee(address account) external view returns(bool) {
         return _isExcludedFromFee[account];
     }
 
@@ -1085,7 +1112,7 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         if(_isExcludedFromFee[from] || _isExcludedFromFee[to]){
             takeFee = false;
         }
-        
+
         //transfer amount, it will take tax, burn, liquidity fee
         _tokenTransfer(from,to,amount,takeFee);
     }
@@ -1203,24 +1230,24 @@ contract NFTeaseToken is Context, IERC20, Ownable {
     /** 
     * @dev Per Certik's audit of SafeMoon it is recommended to have this withdraw function
     */
-    function withdraw() onlyOwner public {
+    function withdraw() external onlyOwner {
       uint256 balance = address(this).balance;
       payable(msg.sender).transfer(balance);
       emit BalanceWithdrawn(msg.sender, balance);
     }
 
-    function setMinter(address minter) public onlyOwner returns (address) {
+    function setMinter(address minter) external onlyOwner returns (address) {
         marketplaceMinter = minter;
         return marketplaceMinter;
     }
 
-    function setLottery(address lotteryAddress) public onlyOwner returns (address) {
+    function setLottery(address lotteryAddress) external onlyOwner returns (address) {
         lotteryContract = lotteryAddress;
         _isExcludedFromFee[lotteryContract] = true;
         return lotteryContract;
     }
 
-    function mint(uint256 amount) public returns (bool) {
+    function mint(uint256 amount) external returns (bool) {
         require(_msgSender() == marketplaceMinter);
         require(amount <= maxMint, "trying to mint greater than limit");
         require(amount <= capLimit, "trying to mint over cap limit");
@@ -1233,11 +1260,11 @@ contract NFTeaseToken is Context, IERC20, Ownable {
         return true;
     }
     
-    function getMintTime() public view returns (uint256) {
+    function getMintTime() external view returns (uint256) {
         return _unlockDate;
     }
 
-    function burn(uint256 _amount) onlyOwner public{
+    function burn(uint256 _amount) onlyOwner external {
         _transfer(msg.sender, 0x000000000000000000000000000000000000dEaD, _amount);
     }
 }
